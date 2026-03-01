@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRABAJO ABP ELIPSES</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 30px 15px;
+            margin: 0;
+        }
+        h1 {
+            color: #00f0ff;
+            text-shadow: 0 0 10px #00f0ff;
+            margin-bottom: 25px;
+            font-weight: 700;
+            text-align: center;
+        }
+        .container { max-width: 1100px; margin: 0 auto; text-align: center; }
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            padding: 30px;
+            margin: 25px auto;
+            border: 1px solid #334155;
+            backdrop-filter: blur(8px);
+        }
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-weight: 600; color: #94a3b8; }
+        input {
+            padding: 12px 16px;
+            border: 2px solid #334155;
+            border-radius: 10px;
+            font-size: 16px;
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+        input:focus {
+            border-color: #00f0ff;
+            box-shadow: 0 0 12px rgba(0,240,255,0.4);
+            outline: none;
+        }
+        button {
+            grid-column: 1 / -1;
+            padding: 14px 40px;
+            background: #00b4d8;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(0,180,216,0.5);
+        }
+        button:hover {
+            background: #00f0ff;
+            color: #0f172a;
+            box-shadow: 0 0 25px rgba(0,240,255,0.7);
+            transform: translateY(-2px);
+        }
+        canvas {
+            border-radius: 16px;
+            border: 2px solid #334155;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            background: #000000;
+            margin: 25px auto;
+            display: block;
+            max-width: 100%;
+        }
+        #results {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px auto;
+            max-width: 600px;
+            border: 1px solid #334155;
+            color: #e2e8f0;
+        }
+        #results strong { color: #00f0ff; text-shadow: 0 0 6px #00f0ff; }
+        footer { margin-top: 60px; color: #94a3b8; font-style: italic; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TRABAJO ABP ELIPSES</h1>
+
+        <div class="card">
+            <form>
+                <div class="input-group">
+                    <label>Vertice 1 X</label>
+                    <input type="number" step="0.1" id="v1x" value="-8">
+                </div>
+                <div class="input-group">
+                    <label>Vertice 1 Y</label>
+                    <input type="number" step="0.1" id="v1y" value="5">
+                </div>
+                <div class="input-group">
+                    <label>Vertice 2 X</label>
+                    <input type="number" step="0.1" id="v2x" value="8">
+                </div>
+                <div class="input-group">
+                    <label>Vertice 2 Y</label>
+                    <input type="number" step="0.1" id="v2y" value="5">
+                </div>
+                <div class="input-group">
+                    <label>Semi-eje menor b</label>
+                    <input type="number" step="0.1" id="b" value="3">
+                </div>
+                <button type="button" onclick="updateSimulator()">Actualizar Simulador</button>
+            </form>
+        </div>
+
+        <canvas id="plane" width="661" height="661"></canvas>
+
+        <div id="results" class="card"></div>
+
+        <footer>Trabajo hecho por Eduardo Roman, Anderson Cayo, Ariel Pinto, Dilan Caiza</footer>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('plane');
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const scale = 30;
+
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Cuadrícula fina (azul neón suave)
+            ctx.strokeStyle = '#00b4d8';
+            ctx.lineWidth = 0.8;
+            for (let i = -11; i <= 11; i++) {
+                const x = centerX + i * scale;
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+
+                const y = centerY - i * scale;
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
+
+            // Flechas pequeñas (azul neón intenso) - sin ejes gruesos blancos
+            ctx.fillStyle = '#00f0ff';
+            ctx.beginPath(); ctx.moveTo(canvas.width - 18, centerY - 12); ctx.lineTo(canvas.width, centerY); ctx.lineTo(canvas.width - 18, centerY + 12); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(centerX - 12, 18); ctx.lineTo(centerX, 0); ctx.lineTo(centerX + 12, 18); ctx.fill();
+
+            // Números y etiquetas (blanco con sombra neón)
+            ctx.font = '11px Arial';
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = '#00f0ff';
+            ctx.shadowBlur = 8;
+            for (let i = -10; i <= 10; i++) {
+                if (i === 0) continue;
+                ctx.textAlign = 'center';
+                ctx.fillText(i, centerX + i * scale, centerY + 38);
+                ctx.textAlign = 'right';
+                ctx.fillText(i, centerX - 38, centerY - i * scale + 5);
+            }
+            ctx.textAlign = 'right';
+            ctx.fillText('0', centerX - 38, centerY + 38);
+            ctx.shadowBlur = 0;
+
+            // Etiquetas especiales en ±11
+            ctx.font = 'bold 14px Arial';
+            ctx.fillStyle = '#00f0ff';
+            ctx.shadowColor = '#00f0ff';
+            ctx.shadowBlur = 10;
+            ctx.textAlign = 'center';
+            ctx.fillText('x', centerX + 11 * scale, centerY + 38);
+            ctx.fillText('-x', centerX - 11 * scale, centerY + 38);
+
+            ctx.textAlign = 'right';
+            ctx.fillText('y', centerX - 38, centerY - 11 * scale + 5);
+            ctx.fillText('-y', centerX - 38, centerY + 11 * scale + 5);
+            ctx.shadowBlur = 0;
+
+            // Etiquetas finales X e Y
+            ctx.font = 'bold 20px Arial';
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('X', canvas.width - 60, centerY + 10);
+            ctx.fillText('Y', centerX + 45, 65);
+        }
+
+        function updateSimulator() {
+            const v1x = parseFloat(document.getElementById('v1x').value);
+            const v1y = parseFloat(document.getElementById('v1y').value);
+            const v2x = parseFloat(document.getElementById('v2x').value);
+            const v2y = parseFloat(document.getElementById('v2y').value);
+            const b = parseFloat(document.getElementById('b').value);
+
+            if ([v1x, v1y, v2x, v2y, b].some(isNaN)) {
+                alert('Ingrese valores numéricos válidos.');
+                return;
+            }
+
+            const cx = (v1x + v2x) / 2;
+            const cy = (v1y + v2y) / 2;
+
+            const dx = v2x - v1x;
+            const dy = v2y - v1y;
+            const dist = Math.hypot(dx, dy);
+            const a = dist / 2;
+
+            if (b >= a || b <= 0) {
+                alert(`b debe ser > 0 y menor que a (${a.toFixed(2)})`);
+                return;
+            }
+
+            const c = Math.sqrt(a * a - b * b);
+            const phi = Math.atan2(dy, dx);
+
+            const f1x = cx - c * Math.cos(phi);
+            const f1y = cy - c * Math.sin(phi);
+            const f2x = cx + c * Math.cos(phi);
+            const f2y = cy + c * Math.sin(phi);
+
+            document.getElementById('results').innerHTML = `
+                <strong>Centro:</strong> (${cx.toFixed(2)}, ${cy.toFixed(2)})<br>
+                <strong>Semi-eje mayor (a):</strong> ${a.toFixed(2)}<br>
+                <strong>Semi-eje menor (b):</strong> ${b.toFixed(2)}<br>
+                <strong>Distancia focal (c):</strong> ${c.toFixed(2)}<br>
+                <strong>Foco 1:</strong> (${f1x.toFixed(2)}, ${f1y.toFixed(2)})<br>
+                <strong>Foco 2:</strong> (${f2x.toFixed(2)}, ${f2y.toFixed(2)})
+            `;
+
+            drawGrid();
+
+            // Elipse (rojo neón)
+            ctx.strokeStyle = '#ff3366';
+            ctx.lineWidth = 4;
+            ctx.shadowColor = '#ff3366';
+            ctx.shadowBlur = 12;
+            ctx.beginPath();
+            let first = true;
+            for (let t = 0; t < 2 * Math.PI + 0.05; t += 0.015) {
+                const x = cx + a * Math.cos(t) * Math.cos(phi) - b * Math.sin(t) * Math.sin(phi);
+                const y = cy + a * Math.cos(t) * Math.sin(phi) + b * Math.sin(t) * Math.cos(phi);
+                const px = centerX + x * scale;
+                const py = centerY - y * scale;
+                if (first) { ctx.moveTo(px, py); first = false; }
+                else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // Vértices (magenta neón)
+            ctx.fillStyle = '#ff00aa';
+            ctx.shadowColor = '#ff00aa';
+            ctx.shadowBlur = 10;
+            ctx.beginPath(); ctx.arc(centerX + v1x * scale, centerY - v1y * scale, 8, 0, 2 * Math.PI); ctx.fill();
+            ctx.beginPath(); ctx.arc(centerX + v2x * scale, centerY - v2y * scale, 8, 0, 2 * Math.PI); ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Centro (cian neón)
+            ctx.fillStyle = '#00f0ff';
+            ctx.shadowColor = '#00f0ff';
+            ctx.shadowBlur = 15;
+            ctx.beginPath(); ctx.arc(centerX + cx * scale, centerY - cy * scale, 10, 0, 2 * Math.PI); ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Focos (verde neón)
+            ctx.fillStyle = '#39ff14';
+            ctx.shadowColor = '#39ff14';
+            ctx.shadowBlur = 12;
+            ctx.beginPath(); ctx.arc(centerX + f1x * scale, centerY - f1y * scale, 8, 0, 2 * Math.PI); ctx.fill();
+            ctx.beginPath(); ctx.arc(centerX + f2x * scale, centerY - f2y * scale, 8, 0, 2 * Math.PI); ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Vectores (azul neón tenue)
+            ctx.strokeStyle = '#00b4d8';
+            ctx.lineWidth = 2.5;
+            ctx.setLineDash([6, 4]);
+            ctx.shadowColor = '#00b4d8';
+            ctx.shadowBlur = 8;
+            ctx.beginPath(); ctx.moveTo(centerX + cx * scale, centerY - cy * scale);
+            ctx.lineTo(centerX + v1x * scale, centerY - v1y * scale); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(centerX + cx * scale, centerY - cy * scale);
+            ctx.lineTo(centerX + v2x * scale, centerY - v2y * scale); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.shadowBlur = 0;
+        }
+
+        updateSimulator();
+    </script>
+</body>
+</html>
