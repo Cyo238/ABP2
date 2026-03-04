@@ -87,9 +87,8 @@
             max-width: 600px;
             border: 1px solid #334155;
             color: #e2e8f0;
-            line-height: 1.6;
         }
-        #results strong { color: #00f0ff; }
+        #results strong { color: #00f0ff; text-shadow: 0 0 6px #00f0ff; }
         footer { margin-top: 60px; color: #94a3b8; font-style: italic; text-align: center; }
     </style>
 </head>
@@ -116,8 +115,8 @@
                     <input type="number" step="0.1" id="v2y" value="-4">
                 </div>
                 <div class="input-group">
-                    <label>Semi-eje menor b (opcional - deja vacío para automático)</label>
-                    <input type="number" step="0.1" id="b" value="">
+                    <label>Semi-eje menor b (obligatorio)</label>
+                    <input type="number" step="0.1" id="b" value="2.64">
                 </div>
                 <button type="button" onclick="updateSimulator()">Actualizar Simulador</button>
             </form>
@@ -137,9 +136,118 @@
         const centerY = canvas.height / 2;
         const scale = 30;
 
-        // Función para limpiar residuos flotantes muy pequeños
-        function cleanFloat(n, precision = 1e-10) {
+        // Limpieza agresiva de residuos flotantes
+        function cleanFloat(n, precision = 1e-8) {
             return Math.abs(n) < precision ? 0 : n;
+        }
+
+        function updateSimulator() {
+            const v1x = parseFloat(document.getElementById('v1x').value);
+            const v1y = parseFloat(document.getElementById('v1y').value);
+            const v2x = parseFloat(document.getElementById('v2x').value);
+            const v2y = parseFloat(document.getElementById('v2y').value);
+            const b = parseFloat(document.getElementById('b').value);
+
+            if ([v1x, v1y, v2x, v2y, b].some(isNaN)) {
+                alert('Ingrese TODAS las coordenadas y el valor de b (semi-eje menor).');
+                return;
+            }
+
+            if (b <= 0) {
+                alert('b debe ser mayor que 0.');
+                return;
+            }
+
+            const cx = (v1x + v2x) / 2;
+            const cy = (v1y + v2y) / 2;
+
+            const dx = v2x - v1x;
+            const dy = v2y - v1y;
+            const dist = Math.hypot(dx, dy);
+            const a = dist / 2;
+
+            if (b >= a) {
+                alert('b debe ser menor que a (semi-eje mayor).');
+                return;
+            }
+
+            // Cálculo preciso de c
+            let c = Math.sqrt(a * a - b * b);
+            c = cleanFloat(c);
+
+            // Ángulo con limpieza
+            let phi = Math.atan2(dy, dx);
+            if (Math.abs(phi) < 1e-8) phi = 0;
+            if (Math.abs(phi - Math.PI) < 1e-8) phi = Math.PI;
+
+            let cosPhi = cleanFloat(Math.cos(phi));
+            let sinPhi = cleanFloat(Math.sin(phi));
+
+            // Focos limpios
+            let f1x = cleanFloat(cx - c * cosPhi);
+            let f1y = cleanFloat(cy - c * sinPhi);
+            let f2x = cleanFloat(cx + c * cosPhi);
+            let f2y = cleanFloat(cy + c * sinPhi);
+
+            document.getElementById('results').innerHTML = `
+                <strong>Centro:</strong> (${cx.toFixed(2)}, ${cy.toFixed(2)})<br>
+                <strong>Semi-eje mayor (a):</strong> ${a.toFixed(2)}<br>
+                <strong>Semi-eje menor (b):</strong> ${b.toFixed(2)}<br>
+                <strong>Distancia focal (c):</strong> ${c.toFixed(2)}<br>
+                <strong>Foco 1:</strong> (${f1x.toFixed(2)}, ${f1y.toFixed(2)})<br>
+                <strong>Foco 2:</strong> (${f2x.toFixed(2)}, ${f2y.toFixed(2)})
+            `;
+
+            drawGrid();
+
+            ctx.strokeStyle = '#ff3366';
+            ctx.lineWidth = 4;
+            ctx.shadowColor = '#ff3366';
+            ctx.shadowBlur = 12;
+            ctx.beginPath();
+            let first = true;
+            for (let t = 0; t < 2 * Math.PI + 0.05; t += 0.015) {
+                const x = cx + a * Math.cos(t) * cosPhi - b * Math.sin(t) * sinPhi;
+                const y = cy + a * Math.cos(t) * sinPhi + b * Math.sin(t) * cosPhi;
+                const px = centerX + x * scale;
+                const py = centerY - y * scale;
+                if (first) { ctx.moveTo(px, py); first = false; }
+                else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = '#ff00aa';
+            ctx.shadowColor = '#ff00aa';
+            ctx.shadowBlur = 10;
+            ctx.beginPath(); ctx.arc(centerX + v1x * scale, centerY - v1y * scale, 8, 0, 2 * Math.PI); ctx.fill();
+            ctx.beginPath(); ctx.arc(centerX + v2x * scale, centerY - v2y * scale, 8, 0, 2 * Math.PI); ctx.fill();
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = '#00f0ff';
+            ctx.shadowColor = '#00f0ff';
+            ctx.shadowBlur = 15;
+            ctx.beginPath(); ctx.arc(centerX + cx * scale, centerY - cy * scale, 10, 0, 2 * Math.PI); ctx.fill();
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = '#39ff14';
+            ctx.shadowColor = '#39ff14';
+            ctx.shadowBlur = 12;
+            ctx.beginPath(); ctx.arc(centerX + f1x * scale, centerY - f1y * scale, 8, 0, 2 * Math.PI); ctx.fill();
+            ctx.beginPath(); ctx.arc(centerX + f2x * scale, centerY - f2y * scale, 8, 0, 2 * Math.PI); ctx.fill();
+            ctx.shadowBlur = 0;
+
+            ctx.strokeStyle = '#00b4d8';
+            ctx.lineWidth = 2.5;
+            ctx.setLineDash([6, 4]);
+            ctx.shadowColor = '#00b4d8';
+            ctx.shadowBlur = 8;
+            ctx.beginPath(); ctx.moveTo(centerX + cx * scale, centerY - cy * scale);
+            ctx.lineTo(centerX + v1x * scale, centerY - v1y * scale); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(centerX + cx * scale, centerY - cy * scale);
+            ctx.lineTo(centerX + v2x * scale, centerY - v2y * scale); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.shadowBlur = 0;
         }
 
         function drawGrid() {
@@ -198,104 +306,6 @@
             ctx.shadowBlur = 4;
             ctx.textAlign = 'right';
             ctx.fillText("Al Román le gusta la Sofía", canvas.width - 20, centerY + 80);
-            ctx.shadowBlur = 0;
-        }
-
-        function updateSimulator() {
-            const v1x = parseFloat(document.getElementById('v1x').value);
-            const v1y = parseFloat(document.getElementById('v1y').value);
-            const v2x = parseFloat(document.getElementById('v2x').value);
-            const v2y = parseFloat(document.getElementById('v2y').value);
-            let bInput = parseFloat(document.getElementById('b').value);
-
-            if ([v1x, v1y, v2x, v2y].some(isNaN)) {
-                alert('Ingrese las coordenadas de los dos vértices.');
-                return;
-            }
-
-            const cx = (v1x + v2x) / 2;
-            const cy = (v1y + v2y) / 2;
-
-            const dx = v2x - v1x;
-            const dy = v2y - v1y;
-            const dist = Math.hypot(dx, dy);
-            const a = dist / 2;
-
-            let b;
-            let bSource = "automático";
-            if (!isNaN(bInput) && bInput > 0 && bInput < a) {
-                b = bInput;
-                bSource = "ingresado por ti";
-            } else {
-                b = a * 0.6;  // factor por defecto si no se ingresa o es inválido
-            }
-
-            const c = Math.sqrt(a * a - b * b);
-            const phi = Math.atan2(dy, dx);
-
-            const f1x = cx - c * Math.cos(phi);
-            const f1y = cy - c * Math.sin(phi);
-            const f2x = cx + c * Math.cos(phi);
-            const f2y = cy + c * Math.sin(phi);
-
-            document.getElementById('results').innerHTML = `
-                <strong>Centro:</strong> (${cx.toFixed(2)}, ${cy.toFixed(2)})<br>
-                <strong>Semi-eje mayor (a):</strong> ${a.toFixed(2)}<br>
-                <strong>Semi-eje menor (b):</strong> ${b.toFixed(2)} (${bSource})<br>
-                <strong>Distancia focal (c):</strong> ${c.toFixed(2)}<br>
-                <strong>Foco 1:</strong> (${f1x.toFixed(2)}, ${f1y.toFixed(2)})<br>
-                <strong>Foco 2:</strong> (${f2x.toFixed(2)}, ${f2y.toFixed(2)})
-            `;
-
-            drawGrid();
-
-            ctx.strokeStyle = '#ff3366';
-            ctx.lineWidth = 4;
-            ctx.shadowColor = '#ff3366';
-            ctx.shadowBlur = 12;
-            ctx.beginPath();
-            let first = true;
-            for (let t = 0; t < 2 * Math.PI + 0.05; t += 0.015) {
-                const x = cx + a * Math.cos(t) * Math.cos(phi) - b * Math.sin(t) * Math.sin(phi);
-                const y = cy + a * Math.cos(t) * Math.sin(phi) + b * Math.sin(t) * Math.cos(phi);
-                const px = centerX + x * scale;
-                const py = centerY - y * scale;
-                if (first) { ctx.moveTo(px, py); first = false; }
-                else ctx.lineTo(px, py);
-            }
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-
-            ctx.fillStyle = '#ff00aa';
-            ctx.shadowColor = '#ff00aa';
-            ctx.shadowBlur = 10;
-            ctx.beginPath(); ctx.arc(centerX + v1x * scale, centerY - v1y * scale, 8, 0, 2 * Math.PI); ctx.fill();
-            ctx.beginPath(); ctx.arc(centerX + v2x * scale, centerY - v2y * scale, 8, 0, 2 * Math.PI); ctx.fill();
-            ctx.shadowBlur = 0;
-
-            ctx.fillStyle = '#00f0ff';
-            ctx.shadowColor = '#00f0ff';
-            ctx.shadowBlur = 15;
-            ctx.beginPath(); ctx.arc(centerX + cx * scale, centerY - cy * scale, 10, 0, 2 * Math.PI); ctx.fill();
-            ctx.shadowBlur = 0;
-
-            ctx.fillStyle = '#39ff14';
-            ctx.shadowColor = '#39ff14';
-            ctx.shadowBlur = 12;
-            ctx.beginPath(); ctx.arc(centerX + f1x * scale, centerY - f1y * scale, 8, 0, 2 * Math.PI); ctx.fill();
-            ctx.beginPath(); ctx.arc(centerX + f2x * scale, centerY - f2y * scale, 8, 0, 2 * Math.PI); ctx.fill();
-            ctx.shadowBlur = 0;
-
-            ctx.strokeStyle = '#00b4d8';
-            ctx.lineWidth = 2.5;
-            ctx.setLineDash([6, 4]);
-            ctx.shadowColor = '#00b4d8';
-            ctx.shadowBlur = 8;
-            ctx.beginPath(); ctx.moveTo(centerX + cx * scale, centerY - cy * scale);
-            ctx.lineTo(centerX + v1x * scale, centerY - v1y * scale); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(centerX + cx * scale, centerY - cy * scale);
-            ctx.lineTo(centerX + v2x * scale, centerY - v2y * scale); ctx.stroke();
-            ctx.setLineDash([]);
             ctx.shadowBlur = 0;
         }
 
