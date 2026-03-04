@@ -115,7 +115,7 @@
                     <input type="number" step="0.1" id="v2y" value="-4">
                 </div>
                 <div class="input-group">
-                    <label>Semi-eje menor b (opcional - deja vacío para automático)</label>
+                    <label>Semi-eje menor b (deja vacío para automático ≈60% de a)</label>
                     <input type="number" step="0.1" id="b" value="">
                 </div>
                 <button type="button" onclick="updateSimulator()">Actualizar Simulador</button>
@@ -136,9 +136,10 @@
         const centerY = canvas.height / 2;
         const scale = 30;
 
-        // Limpieza agresiva de flotantes
+        // Limpieza ultra agresiva
         function clean(n) {
-            return Math.round(n * 100) / 100;
+            const rounded = Math.round(n * 1000000) / 1000000; // 6 decimales internos
+            return Math.abs(rounded) < 1e-8 ? 0 : rounded;
         }
 
         function updateSimulator() {
@@ -146,7 +147,7 @@
             const v1y = parseFloat(document.getElementById('v1y').value);
             const v2x = parseFloat(document.getElementById('v2x').value);
             const v2y = parseFloat(document.getElementById('v2y').value);
-            let b = parseFloat(document.getElementById('b').value);
+            let bInput = parseFloat(document.getElementById('b').value);
 
             if ([v1x, v1y, v2x, v2y].some(isNaN)) {
                 alert('Ingrese las coordenadas de los dos vértices.');
@@ -161,14 +162,16 @@
             const dist = Math.hypot(dx, dy);
             const a = clean(dist / 2);
 
-            if (isNaN(b) || b <= 0 || b >= a) {
-                b = clean(a * 0.6);  // automático si no se ingresa o es inválido
+            let b;
+            let bSource = '(automático)';
+            if (!isNaN(bInput) && bInput > 0 && bInput < a) {
+                b = clean(bInput);
+                bSource = '(ingresado)';
             } else {
-                b = clean(b);
+                b = clean(a * 0.6);
             }
 
-            let c = Math.sqrt(a * a - b * b);
-            c = clean(c);
+            let c = clean(Math.sqrt(a * a - b * b));
 
             let phi = Math.atan2(dy, dx);
             if (Math.abs(dy) < 0.0001) phi = 0;  // forzamos horizontal exacto
@@ -184,7 +187,7 @@
             document.getElementById('results').innerHTML = `
                 <strong>Centro:</strong> (${cx.toFixed(2)}, ${cy.toFixed(2)})<br>
                 <strong>Semi-eje mayor (a):</strong> ${a.toFixed(2)}<br>
-                <strong>Semi-eje menor (b):</strong> ${b.toFixed(2)} ${isNaN(parseFloat(document.getElementById('b').value)) ? '(automático)' : '(ingresado)' }<br>
+                <strong>Semi-eje menor (b):</strong> ${b.toFixed(2)} ${bSource}<br>
                 <strong>Distancia focal (c):</strong> ${c.toFixed(2)}<br>
                 <strong>Foco 1:</strong> (${f1x.toFixed(2)}, ${f1y.toFixed(2)})<br>
                 <strong>Foco 2:</strong> (${f2x.toFixed(2)}, ${f2y.toFixed(2)})
