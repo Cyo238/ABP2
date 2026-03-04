@@ -115,7 +115,7 @@
                     <input type="number" step="0.1" id="v2y" value="-4">
                 </div>
                 <div class="input-group">
-                    <label>Semi-eje menor b (obligatorio)</label>
+                    <label>Semi-eje menor b</label>
                     <input type="number" step="0.1" id="b" value="2.64">
                 </div>
                 <button type="button" onclick="updateSimulator()">Actualizar Simulador</button>
@@ -136,9 +136,9 @@
         const centerY = canvas.height / 2;
         const scale = 30;
 
-        // Limpieza agresiva de residuos flotantes
-        function cleanFloat(n, precision = 1e-8) {
-            return Math.abs(n) < precision ? 0 : n;
+        // Limpieza muy agresiva de residuos flotantes
+        function clean(n) {
+            return Math.round(n * 100) / 100;  // redondeo a 2 decimales directo
         }
 
         function updateSimulator() {
@@ -149,7 +149,7 @@
             const b = parseFloat(document.getElementById('b').value);
 
             if ([v1x, v1y, v2x, v2y, b].some(isNaN)) {
-                alert('Ingrese TODAS las coordenadas y el valor de b (semi-eje menor).');
+                alert('Ingrese TODAS las coordenadas y el valor de b.');
                 return;
             }
 
@@ -158,36 +158,33 @@
                 return;
             }
 
-            const cx = (v1x + v2x) / 2;
-            const cy = (v1y + v2y) / 2;
+            const cx = clean((v1x + v2x) / 2);
+            const cy = clean((v1y + v2y) / 2);
 
             const dx = v2x - v1x;
             const dy = v2y - v1y;
             const dist = Math.hypot(dx, dy);
-            const a = dist / 2;
+            const a = clean(dist / 2);
 
             if (b >= a) {
-                alert('b debe ser menor que a (semi-eje mayor).');
+                alert('b debe ser menor que a.');
                 return;
             }
 
-            // Cálculo preciso de c
             let c = Math.sqrt(a * a - b * b);
-            c = cleanFloat(c);
+            c = clean(c);
 
-            // Ángulo con limpieza
             let phi = Math.atan2(dy, dx);
-            if (Math.abs(phi) < 1e-8) phi = 0;
-            if (Math.abs(phi - Math.PI) < 1e-8) phi = Math.PI;
+            // Si es casi horizontal, forzamos ángulo exacto
+            if (Math.abs(dy) < 0.001) phi = 0;
 
-            let cosPhi = cleanFloat(Math.cos(phi));
-            let sinPhi = cleanFloat(Math.sin(phi));
+            let cosPhi = clean(Math.cos(phi));
+            let sinPhi = clean(Math.sin(phi));
 
-            // Focos limpios
-            let f1x = cleanFloat(cx - c * cosPhi);
-            let f1y = cleanFloat(cy - c * sinPhi);
-            let f2x = cleanFloat(cx + c * cosPhi);
-            let f2y = cleanFloat(cy + c * sinPhi);
+            const f1x = clean(cx - c * cosPhi);
+            const f1y = clean(cy - c * sinPhi);
+            const f2x = clean(cx + c * cosPhi);
+            const f2y = clean(cy + c * sinPhi);
 
             document.getElementById('results').innerHTML = `
                 <strong>Centro:</strong> (${cx.toFixed(2)}, ${cy.toFixed(2)})<br>
