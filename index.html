@@ -39,11 +39,12 @@
             font-size: 16px;
             background: #1e293b;
             color: #e2e8f0;
-            resize: vertical;
         }
         textarea {
-            min-height: 120px;
-            font-family: inherit;
+            width: 100%;
+            min-height: 160px;
+            resize: vertical;
+            box-sizing: border-box;
         }
         input:focus, textarea:focus {
             border-color: #00f0ff;
@@ -86,21 +87,26 @@
             max-width: 700px;
             border: 1px solid #334155;
             color: #e2e8f0;
+            font-size: 1.05em;
+            line-height: 1.6;
         }
         #results strong { color: #00f0ff; text-shadow: 0 0 6px #00f0ff; }
         .exercise-card {
-            background: rgba(20, 30, 50, 0.8);
+            background: rgba(20, 30, 50, 0.9);
             border: 1px solid #00b4d8;
             border-radius: 12px;
             padding: 20px;
             margin: 20px auto;
-            max-width: 900px;
+            max-width: 1000px;
+            width: 90%;
+            box-sizing: border-box;
             text-align: left;
         }
         .exercise-card h2 {
             color: #00f0ff;
             margin-top: 0;
             text-shadow: 0 0 8px #00f0ff;
+            text-align: center;
         }
         footer { margin-top: 60px; color: #94a3b8; font-style: italic; text-align: center; }
     </style>
@@ -109,10 +115,9 @@
     <div class="container">
         <h1>Trabajo ABP Elipses - Triángulo F1 M F2</h1>
 
-        <!-- Nuevo apartado para el enunciado del ejercicio -->
         <div class="exercise-card">
             <h2>Ejercicio o Enunciado</h2>
-            <textarea id="ejercicio" placeholder="Aquí puedes escribir el enunciado del ejercicio relacionado con vectores y elipses...&#10;&#10;Ejemplo:&#10;&#10;Dados los vértices V1(-1, -4) y V2(5, -4), y semi-eje menor b = 2.64, determina:&#10;1. El centro de la elipse&#10;2. Los focos&#10;3. La suma de distancias desde M(2, -4) a los focos&#10;..."></textarea>
+            <textarea id="ejercicio"></textarea>
         </div>
 
         <div class="card">
@@ -138,7 +143,6 @@
         const ctx = canvas.getContext('2d');
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
-
         const UNIDAD_EN_PIXELES = 38;
 
         function clean(n) { return Math.round(n * 100) / 100; }
@@ -156,7 +160,6 @@
         }
 
         function updateSimulator() {
-            // ── Cálculos ────────────────────────────────────────────────────────
             const v1x = parseFloat(document.getElementById('v1x').value);
             const v1y = parseFloat(document.getElementById('v1y').value);
             const v2x = parseFloat(document.getElementById('v2x').value);
@@ -196,19 +199,19 @@
                 mf1 = clean(Math.hypot(mx - f1x, my - f1y));
                 mf2 = clean(Math.hypot(mx - f2x, my - f2y));
                 sumaMF = clean(mf1 + mf2);
-                mfHtml = `<br><strong>Punto M:</strong> (${mx.toFixed(2)}, ${my.toFixed(2)})<br><strong>MF:</strong> ${mf1.toFixed(2)}<br><strong>MF':</strong> ${mf2.toFixed(2)}<br><strong>Suma:</strong> ${sumaMF.toFixed(2)}`;
+                mfHtml = `<br><strong>Punto M:</strong> (${mx.toFixed(2)}, ${my.toFixed(2)})<br><strong>Distancia a Foco 1 (MF):</strong> ${mf1.toFixed(2)}<br><strong>Distancia a Foco 2 (MF'):</strong> ${mf2.toFixed(2)}<br><strong>Suma MF + MF':</strong> ${sumaMF.toFixed(2)}`;
             }
 
             document.getElementById('results').innerHTML = `
-                <strong>Centro:</strong> (${cx.toFixed(2)}, ${cy.toFixed(2)})<br>
-                <strong>a:</strong> ${a.toFixed(2)}<br>
-                <strong>b:</strong> ${b.toFixed(2)}<br>
-                <strong>c:</strong> ${c.toFixed(2)}<br>
-                <strong>e:</strong> ${e.toFixed(3)}<br>
-                <strong>Lado recto:</strong> ${ladoRecto.toFixed(2)}<br>
-                <strong>2a:</strong> ${clean(dist).toFixed(2)}<br>
-                <strong>F1:</strong> (${f1x.toFixed(2)}, ${f1y.toFixed(2)})<br>
-                <strong>F2:</strong> (${f2x.toFixed(2)}, ${f2y.toFixed(2)})<br>
+                <strong>Centro de la elipse:</strong> (${cx.toFixed(2)}, ${cy.toFixed(2)})<br>
+                <strong>Semi-eje mayor (a):</strong> ${a.toFixed(2)}<br>
+                <strong>Semi-eje menor (b):</strong> ${b.toFixed(2)}<br>
+                <strong>Distancia al foco (c):</strong> ${c.toFixed(2)}<br>
+                <strong>Excentricidad (e):</strong> ${e.toFixed(3)}<br>
+                <strong>Lado recto (2b²/a):</strong> ${ladoRecto.toFixed(2)}<br>
+                <strong>Longitud del eje mayor (2a):</strong> ${clean(dist).toFixed(2)}<br>
+                <strong>Foco 1:</strong> (${f1x.toFixed(2)}, ${f1y.toFixed(2)})<br>
+                <strong>Foco 2:</strong> (${f2x.toFixed(2)}, ${f2y.toFixed(2)})<br>
                 ${mfHtml}
             `;
 
@@ -217,7 +220,6 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Grilla
             ctx.strokeStyle = '#66ccff'; ctx.lineWidth = 0.6;
             for (let i = -60; i <= 60; i++) {
                 const px = toScreenX(cx + i);
@@ -232,18 +234,15 @@
                 }
             }
 
-            // Ejes principales (visibles)
             ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 2.5; ctx.shadowBlur = 10; ctx.shadowColor = '#00ffff';
             ctx.beginPath(); ctx.moveTo(0, centerY); ctx.lineTo(canvas.width, centerY); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(centerX, 0); ctx.lineTo(centerX, canvas.height); ctx.stroke();
             ctx.shadowBlur = 0;
 
-            // Flechas
             ctx.fillStyle = '#00ffff';
             ctx.beginPath(); ctx.moveTo(canvas.width - 20, centerY - 15); ctx.lineTo(canvas.width, centerY); ctx.lineTo(canvas.width - 20, centerY + 15); ctx.fill();
             ctx.beginPath(); ctx.moveTo(centerX - 15, 20); ctx.lineTo(centerX, 0); ctx.lineTo(centerX + 15, 20); ctx.fill();
 
-            // Etiquetas numéricas
             ctx.font = '11px Arial';
             ctx.fillStyle = '#ffffff';
             ctx.shadowColor = '#00f0ff';
@@ -269,7 +268,6 @@
 
             ctx.fillText('0', centerX - 35, centerY + 28);
 
-            // Etiquetas ejes
             ctx.font = 'bold 14px Arial';
             ctx.shadowBlur = 10;
             ctx.textAlign = 'center';
@@ -280,7 +278,6 @@
             ctx.fillText('-y', centerX - 35, canvas.height - 30);
             ctx.shadowBlur = 0;
 
-            // ── Dibujo de la elipse y elementos ────────────────────────────────
             ctx.strokeStyle = '#ff3366';
             ctx.lineWidth = 4;
             ctx.shadowColor = '#ff3366';
