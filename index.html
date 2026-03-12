@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRABAJO ABP ELIPSES Y VECTORES</title>
+    <title>TRABAJO ABP ELIPSES - Triángulo F1 M F2</title>
     <style>
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #0f172a, #1e293b); color: #e2e8f0; min-height: 100vh; padding: 30px 15px; margin: 0; }
         h1 { color: #00f0ff; text-shadow: 0 0 10px #00f0ff; margin-bottom: 25px; font-weight: 700; text-align: center; }
@@ -29,13 +29,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>Trabajo ABP Elipses Y Vectores</h1>
+        <h1>Trabajo ABP Elipses - Triángulo F1 M F2</h1>
 
         <div class="exercise-card">
-            <h2>Enunciado</h2>
+            <h2>Ejercicio o Enunciado</h2>
             <textarea id="ejercicio"></textarea>
             <div class="button-group">
-                <button type="button" onclick="calcularDesdeEnunciado()">Calcular automáticamente el enunciado</button>
+                <button type="button" onclick="calcularDesdeEnunciado()">Calcular automáticamente desde enunciado</button>
             </div>
         </div>
 
@@ -180,7 +180,7 @@
             ctx.beginPath(); ctx.moveTo(canvas.width - 20, centerY - 15); ctx.lineTo(canvas.width, centerY); ctx.lineTo(canvas.width - 20, centerY + 15); ctx.fill();
             ctx.beginPath(); ctx.moveTo(centerX - 15, 20); ctx.lineTo(centerX, 0); ctx.lineTo(centerX + 15, 20); ctx.fill();
 
-            // Etiquetas numéricas (sin 0 en el centro)
+            // Etiquetas numéricas (sin 0)
             ctx.font = '11px Arial';
             ctx.fillStyle = '#ffffff';
             ctx.shadowColor = '#00f0ff';
@@ -240,7 +240,7 @@
             ctx.beginPath(); ctx.arc(toScreenX(v1x), toScreenY(v1y), 8, 0, 2 * Math.PI); ctx.fill();
             ctx.beginPath(); ctx.arc(toScreenX(v2x), toScreenY(v2y), 8, 0, 2 * Math.PI); ctx.fill();
 
-            // Centro con SOLO (C) – sin nada más
+            // Centro con SOLO (C)
             ctx.fillStyle = '#00f0ff';
             ctx.shadowColor = '#00f0ff';
             ctx.shadowBlur = 15;
@@ -253,7 +253,7 @@
             ctx.textAlign = 'center';
             ctx.fillText('(C)', toScreenX(cx), toScreenY(cy) + 30);
 
-            // Focos con etiquetas F₁ y F₂
+            // Focos con F₁ y F₂
             ctx.fillStyle = '#39ff14';
             ctx.shadowColor = '#39ff14';
             ctx.shadowBlur = 12;
@@ -280,7 +280,7 @@
             ctx.setLineDash([]);
             ctx.shadowBlur = 0;
 
-            // Triángulo si hay M – sin etiqueta 'F1F2'
+            // Triángulo (sin F1F2)
             if (tieneM) {
                 const pF1 = {x: toScreenX(f1x), y: toScreenY(f1y)};
                 const pF2 = {x: toScreenX(f2x), y: toScreenY(f2y)};
@@ -305,7 +305,6 @@
                 ctx.font = 'bold 13px Arial';
                 ctx.fillStyle = '#ff5252';   ctx.fillText('MF',  (pF1.x + pM.x)/2 + 10, (pF1.y + pM.y)/2 - 5);
                 ctx.fillStyle = '#448aff';   ctx.fillText("MF'", (pM.x  + pF2.x)/2 + 10, (pM.y  + pF2.y)/2 - 5);
-                // ← Quitamos la línea de 'F1F2' para que no aparezca en el centro
                 ctx.fillStyle = '#ffeb3b';   ctx.fillText('Vector M', pM.x + 12, pM.y - 12);
             }
         }
