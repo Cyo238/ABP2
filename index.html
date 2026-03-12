@@ -3,16 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRABAJO ABP ELIPSES Y VECTORES</title>
+    <title>TRABAJO ABP ELIPSES - Triángulo F1 M F2</title>
     <style>
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            color: #e2e8f0;
-            min-height: 100vh;
-            padding: 30px 15px;
-            margin: 0;
-        }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #0f172a, #1e293b); color: #e2e8f0; min-height: 100vh; padding: 30px 15px; margin: 0; }
         h1 { color: #00f0ff; text-shadow: 0 0 10px #00f0ff; margin-bottom: 25px; font-weight: 700; text-align: center; }
         .container { max-width: 1100px; margin: 0 auto; text-align: center; }
         .card { background: rgba(30, 41, 59, 0.7); border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); padding: 30px; margin: 25px auto; border: 1px solid #334155; backdrop-filter: blur(8px); }
@@ -22,44 +15,39 @@
         input, textarea { padding: 12px 16px; border: 2px solid #334155; border-radius: 10px; font-size: 16px; background: #1e293b; color: #e2e8f0; }
         textarea { width: 100%; min-height: 160px; resize: vertical; box-sizing: border-box; }
         input:focus, textarea:focus { border-color: #00f0ff; box-shadow: 0 0 12px rgba(0,240,255,0.4); outline: none; }
-        button { grid-column: 1 / -1; padding: 14px 40px; background: #00b4d8; color: white; border: none; border-radius: 12px; font-size: 17px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 0 15px rgba(0,180,216,0.5); }
+        button { padding: 14px 30px; background: #00b4d8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 0 15px rgba(0,180,216,0.5); margin: 10px 5px; }
         button:hover { background: #00f0ff; color: #0f172a; box-shadow: 0 0 25px rgba(0,240,255,0.7); transform: translateY(-2px); }
+        .button-group { text-align: center; }
         canvas { border-radius: 16px; border: 2px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.6); background: #000000; margin: 25px auto; display: block; max-width: 100%; }
         #results { background: rgba(15, 23, 42, 0.8); border-radius: 12px; padding: 20px; margin: 25px auto; max-width: 700px; border: 1px solid #334155; color: #e2e8f0; }
         #results strong { color: #00f0ff; text-shadow: 0 0 6px #00f0ff; }
         .exercise-card { background: rgba(20, 30, 50, 0.9); border: 1px solid #00b4d8; border-radius: 12px; padding: 20px; margin: 20px auto; max-width: 1000px; width: 90%; box-sizing: border-box; text-align: left; }
         .exercise-card h2 { color: #00f0ff; margin-top: 0; text-shadow: 0 0 8px #00f0ff; text-align: center; }
-        footer { 
-            margin-top: 60px; 
-            color: #94a3b8; 
-            font-style: italic; 
-            text-align: center; 
-            font-size: 14px;          /* nombres más grandes */
-        }
-        footer span { 
-            font-size: 11px;          /* frase pequeña */
-            opacity: 0.8;
-        }
+        footer { margin-top: 60px; color: #94a3b8; font-style: italic; text-align: center; font-size: 14px; }
+        footer span { font-size: 11px; opacity: 0.8; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Trabajo ABP Elipses y Vectores</h1>
+        <h1>Trabajo ABP Elipses - Triángulo F1 M F2</h1>
 
         <div class="exercise-card">
-            <h2>Enunciado</h2>
+            <h2>Ejercicio o Enunciado</h2>
             <textarea id="ejercicio"></textarea>
+            <div class="button-group">
+                <button type="button" onclick="calcularDesdeEnunciado()">Calcular automáticamente desde enunciado</button>
+            </div>
         </div>
 
         <div class="card">
             <form>
-                <div class="input-group"><label>Vértice 1 X</label><input type="number" step="0.1" id="v1x" value="-1"></div>
-                <div class="input-group"><label>Vértice 1 Y</label><input type="number" step="0.1" id="v1y" value="-4"></div>
-                <div class="input-group"><label>Vértice 2 X</label><input type="number" step="0.1" id="v2x" value="5"></div>
-                <div class="input-group"><label>Vértice 2 Y</label><input type="number" step="0.1" id="v2y" value="-4"></div>
-                <div class="input-group"><label>Semi-eje menor (b)</label><input type="number" step="0.1" id="b" value="2.64"></div>
-                <div class="input-group"><label>Punto M X</label><input type="number" step="0.1" id="mx" value="2"></div>
-                <div class="input-group"><label>Punto M Y</label><input type="number" step="0.1" id="my" value="-4"></div>
+                <div class="input-group"><label>Vértice 1 X</label><input type="number" step="0.1" id="v1x"></div>
+                <div class="input-group"><label>Vértice 1 Y</label><input type="number" step="0.1" id="v1y"></div>
+                <div class="input-group"><label>Vértice 2 X</label><input type="number" step="0.1" id="v2x"></div>
+                <div class="input-group"><label>Vértice 2 Y</label><input type="number" step="0.1" id="v2y"></div>
+                <div class="input-group"><label>Semi-eje menor (b)</label><input type="number" step="0.1" id="b"></div>
+                <div class="input-group"><label>Punto M X</label><input type="number" step="0.1" id="mx"></div>
+                <div class="input-group"><label>Punto M Y</label><input type="number" step="0.1" id="my"></div>
                 <button type="button" onclick="updateSimulator()">Actualizar Simulador</button>
             </form>
         </div>
@@ -68,8 +56,8 @@
         <div id="results" class="card"></div>
 
         <footer>
-            Trabajo hecho por Eduardo Roman, Dilan Caiza, Ariel Pinto, Anderson Cayo  
-            <span>y para agregar Naomi te extraño 💞 gracias</span>
+            Trabajo hecho por Eduardo Roman, Anderson Cayo, Ariel Pinto, Dilan Caiza  
+            <span>Naomi te extraño 💞</span>
         </footer>
     </div>
 
@@ -78,7 +66,6 @@
         const ctx = canvas.getContext('2d');
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
-
         const UNIDAD_EN_PIXELES = 38;
 
         function clean(n) { return Math.round(n * 100) / 100; }
@@ -104,19 +91,24 @@
             const mx  = parseFloat(document.getElementById('mx').value);
             const my  = parseFloat(document.getElementById('my').value);
 
-            if ([v1x,v1y,v2x,v2y,b].some(isNaN)) { alert('Ingrese TODAS las coordenadas de vértices y b.'); return; }
-            if (b <= 0) { alert('b debe ser > 0'); return; }
+            if ([v1x, v1y, v2x, v2y, b].some(isNaN)) {
+                document.getElementById('results').innerHTML = "<p style='color:#ff5252;'>Ingrese los datos de los vértices y b para ver la gráfica y resultados.</p>";
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
+            if (b <= 0) { alert('b debe ser mayor que 0.'); return; }
 
-            const cx = clean((v1x + v2x)/2);
-            const cy = clean((v1y + v2y)/2);
-            const dist = Math.hypot(v2x-v1x, v2y-v1y);
+            const cx = clean((v1x + v2x) / 2);
+            const cy = clean((v1y + v2y) / 2);
+            const dist = Math.hypot(v2x - v1x, v2y - v1y);
             const a = clean(dist / 2);
 
-            if (b >= a) { alert('b debe ser < a'); return; }
+            if (b >= a) { alert('b debe ser menor que a.'); return; }
 
-            let c = clean(Math.sqrt(a*a - b*b));
-            let phi = Math.atan2(v2y-v1y, v2x-v1x);
-            if (Math.abs(v2y-v1y) < 0.001) phi = 0;
+            let c = Math.sqrt(a * a - b * b);
+            c = clean(c);
+            let phi = Math.atan2(v2y - v1y, v2x - v1x);
+            if (Math.abs(v2y - v1y) < 0.001) phi = 0;
 
             const cosPhi = Math.cos(phi);
             const sinPhi = Math.sin(phi);
@@ -127,15 +119,21 @@
             const f2y = clean(cy + c * sinPhi);
 
             const e = a > 0 ? clean(c / a) : 0;
-            const ladoRecto = clean(2 * b*b / a);
+            const ladoRecto = clean(2 * b * b / a);
 
-            let mf1=0, mf2=0, sumaMF=0, mfHtml='';
+            let mf1 = 0, mf2 = 0, sumaMF = 0;
+            let mfHtml = '';
             const tieneM = !isNaN(mx) && !isNaN(my);
             if (tieneM) {
                 mf1 = clean(Math.hypot(mx - f1x, my - f1y));
                 mf2 = clean(Math.hypot(mx - f2x, my - f2y));
                 sumaMF = clean(mf1 + mf2);
-                mfHtml = `<br><strong>Punto M:</strong> (${mx.toFixed(2)}, ${my.toFixed(2)})<br><strong>Distancia a Foco 1 (MF):</strong> ${mf1.toFixed(2)}<br><strong>Distancia a Foco 2 (MF'):</strong> ${mf2.toFixed(2)}<br><strong>Suma MF + MF':</strong> ${sumaMF.toFixed(2)}`;
+                mfHtml = `
+                    <br><strong>Punto M:</strong> (${mx.toFixed(2)}, ${my.toFixed(2)})<br>
+                    <strong>Distancia a Foco 1 (MF):</strong> ${mf1.toFixed(2)}<br>
+                    <strong>Distancia a Foco 2 (MF'):</strong> ${mf2.toFixed(2)}<br>
+                    <strong>Suma MF + MF':</strong> ${sumaMF.toFixed(2)}
+                `;
             }
 
             document.getElementById('results').innerHTML = `
@@ -146,8 +144,8 @@
                 <strong>Excentricidad (e):</strong> ${e.toFixed(3)}<br>
                 <strong>Lado recto (2b²/a):</strong> ${ladoRecto.toFixed(2)}<br>
                 <strong>Longitud del eje mayor (2a):</strong> ${clean(dist).toFixed(2)}<br>
-                <strong>Foco 1:</strong> (${f1x.toFixed(2)}, ${f1y.toFixed(2)})<br>
-                <strong>Foco 2:</strong> (${f2x.toFixed(2)}, ${f2y.toFixed(2)})<br>
+                <strong>Foco 1 (F₁):</strong> (${f1x.toFixed(2)}, ${f1y.toFixed(2)})<br>
+                <strong>Foco 2 (F₂):</strong> (${f2x.toFixed(2)}, ${f2y.toFixed(2)})<br>
                 ${mfHtml}
             `;
 
@@ -156,6 +154,7 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Grilla
             ctx.strokeStyle = '#66ccff'; ctx.lineWidth = 0.6;
             for (let i = -60; i <= 60; i++) {
                 const px = toScreenX(cx + i);
@@ -170,15 +169,18 @@
                 }
             }
 
+            // Ejes principales
             ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 2.5; ctx.shadowBlur = 10; ctx.shadowColor = '#00ffff';
             ctx.beginPath(); ctx.moveTo(0, centerY); ctx.lineTo(canvas.width, centerY); ctx.stroke();
             ctx.beginPath(); ctx.moveTo(centerX, 0); ctx.lineTo(centerX, canvas.height); ctx.stroke();
             ctx.shadowBlur = 0;
 
+            // Flechas
             ctx.fillStyle = '#00ffff';
             ctx.beginPath(); ctx.moveTo(canvas.width - 20, centerY - 15); ctx.lineTo(canvas.width, centerY); ctx.lineTo(canvas.width - 20, centerY + 15); ctx.fill();
             ctx.beginPath(); ctx.moveTo(centerX - 15, 20); ctx.lineTo(centerX, 0); ctx.lineTo(centerX + 15, 20); ctx.fill();
 
+            // Etiquetas numéricas (sin 0 en el centro)
             ctx.font = '11px Arial';
             ctx.fillStyle = '#ffffff';
             ctx.shadowColor = '#00f0ff';
@@ -202,8 +204,7 @@
                 }
             }
 
-            ctx.fillText('0', centerX - 35, centerY + 28);
-
+            // Etiquetas ejes
             ctx.font = 'bold 14px Arial';
             ctx.shadowBlur = 10;
             ctx.textAlign = 'center';
@@ -214,6 +215,7 @@
             ctx.fillText('-y', centerX - 35, canvas.height - 30);
             ctx.shadowBlur = 0;
 
+            // Elipse
             ctx.strokeStyle = '#ff3366';
             ctx.lineWidth = 4;
             ctx.shadowColor = '#ff3366';
@@ -231,17 +233,27 @@
             ctx.stroke();
             ctx.shadowBlur = 0;
 
+            // Vértices
             ctx.fillStyle = '#ff00aa';
             ctx.shadowColor = '#ff00aa';
             ctx.shadowBlur = 10;
             ctx.beginPath(); ctx.arc(toScreenX(v1x), toScreenY(v1y), 8, 0, 2 * Math.PI); ctx.fill();
             ctx.beginPath(); ctx.arc(toScreenX(v2x), toScreenY(v2y), 8, 0, 2 * Math.PI); ctx.fill();
 
+            // Centro con SOLO (C) – sin nada más
             ctx.fillStyle = '#00f0ff';
             ctx.shadowColor = '#00f0ff';
             ctx.shadowBlur = 15;
             ctx.beginPath(); ctx.arc(toScreenX(cx), toScreenY(cy), 10, 0, 2 * Math.PI); ctx.fill();
 
+            ctx.font = 'bold 16px Arial';
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = '#00ffff';
+            ctx.shadowBlur = 8;
+            ctx.textAlign = 'center';
+            ctx.fillText('(C)', toScreenX(cx), toScreenY(cy) + 30);
+
+            // Focos con etiquetas F₁ y F₂
             ctx.fillStyle = '#39ff14';
             ctx.shadowColor = '#39ff14';
             ctx.shadowBlur = 12;
@@ -249,6 +261,15 @@
             ctx.beginPath(); ctx.arc(toScreenX(f2x), toScreenY(f2y), 8, 0, 2 * Math.PI); ctx.fill();
             ctx.shadowBlur = 0;
 
+            ctx.font = 'bold 16px Arial';
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = '#00ffff';
+            ctx.shadowBlur = 8;
+            ctx.textAlign = 'left';
+            ctx.fillText('F₁', toScreenX(f1x) + 12, toScreenY(f1y) + 5);
+            ctx.fillText('F₂', toScreenX(f2x) + 12, toScreenY(f2y) + 5);
+
+            // Líneas centro → vértices
             ctx.strokeStyle = '#00b4d8';
             ctx.lineWidth = 2.5;
             ctx.setLineDash([6, 4]);
@@ -259,6 +280,7 @@
             ctx.setLineDash([]);
             ctx.shadowBlur = 0;
 
+            // Triángulo si hay M – sin etiqueta 'F1F2'
             if (tieneM) {
                 const pF1 = {x: toScreenX(f1x), y: toScreenY(f1y)};
                 const pF2 = {x: toScreenX(f2x), y: toScreenY(f2y)};
@@ -283,12 +305,43 @@
                 ctx.font = 'bold 13px Arial';
                 ctx.fillStyle = '#ff5252';   ctx.fillText('MF',  (pF1.x + pM.x)/2 + 10, (pF1.y + pM.y)/2 - 5);
                 ctx.fillStyle = '#448aff';   ctx.fillText("MF'", (pM.x  + pF2.x)/2 + 10, (pM.y  + pF2.y)/2 - 5);
-                ctx.fillStyle = '#69f0ae';   ctx.fillText('F1F2', (pF1.x + pF2.x)/2 + 15, (pF1.y + pF2.y)/2 + 15);
+                // ← Quitamos la línea de 'F1F2' para que no aparezca en el centro
                 ctx.fillStyle = '#ffeb3b';   ctx.fillText('Vector M', pM.x + 12, pM.y - 12);
             }
         }
 
-        updateSimulator();
+        function calcularDesdeEnunciado() {
+            const texto = document.getElementById('ejercicio').value;
+
+            ['v1x','v1y','v2x','v2y','b','mx','my'].forEach(id => document.getElementById(id).value = '');
+
+            let match = texto.match(/V₁\s*\(([-+]?\d*\.?\d+)\s*,\s*([-+]?\d*\.?\d+)\)/);
+            if (match) {
+                document.getElementById('v1x').value = match[1];
+                document.getElementById('v1y').value = match[2];
+            }
+
+            match = texto.match(/V₂\s*\(([-+]?\d*\.?\d+)\s*,\s*([-+]?\d*\.?\d+)\)/);
+            if (match) {
+                document.getElementById('v2x').value = match[1];
+                document.getElementById('v2y').value = match[2];
+            }
+
+            match = texto.match(/b\s*=\s*([-+]?\d*\.?\d+)/);
+            if (match) document.getElementById('b').value = match[1];
+
+            match = texto.match(/M\s*\(([-+]?\d*\.?\d+)\s*,\s*([-+]?\d*\.?\d+)\)/);
+            if (match) {
+                document.getElementById('mx').value = match[1];
+                document.getElementById('my').value = match[2];
+            }
+
+            if (document.getElementById('v1x').value && document.getElementById('v2x').value && document.getElementById('b').value) {
+                updateSimulator();
+            } else {
+                alert('No se detectaron todos los datos. Verifica que el texto tenga V₁(x, y), V₂(x, y) y b = ...');
+            }
+        }
     </script>
 </body>
 </html>
